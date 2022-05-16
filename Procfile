@@ -1,0 +1,1 @@
+web: java -Dserver.port=$PORT -jar target/my_diary_app_mysql-0.0.1-SNAPSHOT.jar

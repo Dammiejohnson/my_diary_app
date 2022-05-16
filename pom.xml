@@ -14,7 +14,7 @@
 	<name>my_diary_app_mysql</name>
 	<description>Diary app project Using Spring Boot and  MySQL</description>
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
