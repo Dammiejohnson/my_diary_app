@@ -8,6 +8,7 @@ import com.technophiles.my_diary_app_mysql.models.User;
 import com.technophiles.my_diary_app_mysql.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,6 +64,7 @@ public class UserController {
     }
 
     @GetMapping("/users/all")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<?> getAllUsers(){
         List<User> users = userService.getAllUsers();
         ApiResponse apiResponse = ApiResponse.builder()

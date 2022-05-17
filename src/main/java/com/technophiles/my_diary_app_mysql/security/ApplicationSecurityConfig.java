@@ -39,7 +39,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests(authorize ->{
                     try {
                         authorize.antMatchers("/**/users/create/**", "/**/users/all/**", "/**/auth/login").permitAll()
-                                .antMatchers("/**/diary/add/**").hasAnyRole("ROLE_ADMIN")
+ //                               .antMatchers("/**/diary/add/**").hasAnyRole("ROLE_ADMIN")
                                 .anyRequest().authenticated()
                                 .and()
                                 .exceptionHandling().authenticationEntryPoint(unAuthorizedEntryPoint)
