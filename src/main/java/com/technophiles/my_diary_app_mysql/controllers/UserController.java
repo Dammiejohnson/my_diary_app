@@ -4,15 +4,21 @@ package com.technophiles.my_diary_app_mysql.controllers;
 import com.technophiles.my_diary_app_mysql.dtos.UserDto;
 import com.technophiles.my_diary_app_mysql.dtos.responses.ApiResponse;
 import com.technophiles.my_diary_app_mysql.exceptions.DiaryApplicationException;
+import com.technophiles.my_diary_app_mysql.models.User;
 import com.technophiles.my_diary_app_mysql.services.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("api/v3/diaryApp")
@@ -54,5 +60,29 @@ public class UserController {
 //                    .build();
 //            return new ResponseEntity<>(apiResponse, HttpStatus.BAD_REQUEST);
 //        }
+    }
+
+    @GetMapping("/users/all")
+    public ResponseEntity<?> getAllUsers(){
+        List<User> users = userService.getAllUsers();
+        ApiResponse apiResponse = ApiResponse.builder()
+                .payload(users)
+                .message("user returned successfully")
+                .statusCode(200)
+                .isSuccessful(true)
+                .build();
+        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        Map<String, String> errors = new HashMap<>();
+        exception.getBindingResult().getAllErrors().forEach((error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        }));
+        return errors;
     }
 }

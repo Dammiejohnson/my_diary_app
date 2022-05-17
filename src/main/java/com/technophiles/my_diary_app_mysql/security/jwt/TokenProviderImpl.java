@@ -37,9 +37,7 @@ public class TokenProviderImpl implements TokenProvider {
 
 //    @Autowired
 //    private TokenRepository tokenRepository;
-//
-//    @Autowired
-//    private UserService userService;
+
 
     @Override
     public String getUsernameFromJWTToken(String token) {
@@ -107,11 +105,12 @@ public class TokenProviderImpl implements TokenProvider {
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
         final Claims claims = claimsJws.getBody();
 
+        final Collection<? extends GrantedAuthority> authorities =
+                //Collections.emptyList();
+                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toSet());
         log.info("Authorities key --> {}", AUTHORITIES_KEY);
-        final Collection<? extends GrantedAuthority> authorities = Collections.emptyList();
-//                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-//                        .map(SimpleGrantedAuthority::new)
-//                        .collect(Collectors.toList());
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 }

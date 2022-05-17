@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
@@ -12,39 +13,53 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @Validated
 @NoArgsConstructor
 public class User {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name="id", nullable = false)
     private Long id;
 
     @Email
     @Column(unique = true)
     private String email;
 
-    //@Size(min = 6, max = 10)
+    @OneToMany(cascade=CascadeType.ALL,orphanRemoval = true,fetch=FetchType.EAGER)
+    private Set <Role> roles;
+
     private String password;
 
-    @OneToMany(mappedBy = "user",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY,
+    @OneToMany(mappedBy="user",
+            cascade=CascadeType.ALL,
+            fetch=FetchType.LAZY,
             orphanRemoval = true)
-    private Set <Diary> diaries;
+    private Set<Diary> diaries;
 
-    @Override
-    public String toString() {
-        return String.format("id:%d\temail:%s", id, email);
-    }
+
 
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-        this.diaries = new HashSet<>();
+        this.diaries=new HashSet<>();
+    }
+
+    public User(String email, String password, RoleType roletype) {
+        this.email = email;
+        this.password = password;
+        if(roles==null){
+            roles= new HashSet<>();
+        }
+        roles.add(new Role(roletype));
+    }
+
+    @Override
+    public String toString() {
+        return String.format("id:%d\temail:%s", id,email);
     }
 
     public void addDiary(Diary diary){
@@ -58,4 +73,12 @@ public class User {
     public void deleteAllDiaries(List<Diary> diariesList){
         diariesList.forEach(diaries::remove);
     }
+
+    public void addRole(Role role){
+        if (this.roles == null){
+            this.roles = new HashSet<>();
+        }
+        roles.add(role);
+    }
+
 }

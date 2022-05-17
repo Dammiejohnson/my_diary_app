@@ -4,26 +4,31 @@ import com.technophiles.my_diary_app_mysql.dtos.UserDto;
 import com.technophiles.my_diary_app_mysql.exceptions.DiaryApplicationException;
 import com.technophiles.my_diary_app_mysql.exceptions.UserNotFoundException;
 import com.technophiles.my_diary_app_mysql.models.Diary;
+import com.technophiles.my_diary_app_mysql.models.Role;
 import com.technophiles.my_diary_app_mysql.models.User;
 import com.technophiles.my_diary_app_mysql.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @NoArgsConstructor
 @AllArgsConstructor
 @Validated
+@Slf4j
 public class UserServiceImpl implements UserService, UserDetailsService {
 
     private UserRepository userRepository;
@@ -71,10 +76,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return true;
     }
 
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
     @SneakyThrows
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new UserNotFoundException("user not found"));
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), new ArrayList<>());
+        User user = userRepository.findUserByEmail(email).orElseThrow(()-> new UserNotFoundException("user not found"));
+        org.springframework.security.core.userdetails.User returnedUser = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user.getRoles()));
+        log.info("Returned user --> {}", returnedUser);
+        return returnedUser;
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roles) {
+        Set<SimpleGrantedAuthority> authorities = roles.stream().map(
+                role-> new SimpleGrantedAuthority(role.getRoleType().name())
+        ).collect(Collectors.toSet());
+        return authorities;
     }
 }

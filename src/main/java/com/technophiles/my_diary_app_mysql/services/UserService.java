@@ -6,6 +6,8 @@ import com.technophiles.my_diary_app_mysql.models.Diary;
 import com.technophiles.my_diary_app_mysql.models.User;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.List;
+
 @Validated
 public interface UserService {
     UserDto createAccount(String email, String password) throws DiaryApplicationException;
@@ -15,4 +17,6 @@ public interface UserService {
     User findUserByEmail(String email);
 
     boolean deleteUser(User user);
+
+    List<User> getAllUsers();
 }
